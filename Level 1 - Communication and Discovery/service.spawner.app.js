@@ -6,19 +6,45 @@ class SimpleSpawner {
     this.processes = [];
   }
 
+  // Spawn the service discovery server
+  spawnServiceDiscoveryServer() {
+    console.log("🚀 Starting Service Discovery Server...");
+
+    const child = spawn("node", ["./service-discovery-server/index.js"], {
+      stdio: "inherit",
+    });
+
+    this.processes.push(child);
+    console.log("✅ Service Discovery Server started on port 3000");
+
+    return child;
+  }
+
   // Wait for service discovery server to be ready
   async waitForServiceDiscovery() {
     console.log("⏳ Checking service discovery server...");
 
-    try {
-      await axios.get("http://localhost:3000/services", { timeout: 2000 });
-      console.log("✅ Service discovery server is ready");
-    } catch (error) {
-      console.error("❌ Service discovery server is not responding");
-      console.log("💡 Make sure to start the service discovery server first:");
-      console.log("   node service-discovery-server.js");
-      process.exit(1);
+    let attempts = 0;
+    const maxAttempts = 10;
+    let delay = 500; // Initial delay of 500ms
+
+    while (attempts < maxAttempts) {
+      try {
+        await axios.get("http://localhost:3000/services", { timeout: 2000 });
+        console.log("✅ Service discovery server is ready");
+        return true;
+      } catch (error) {
+        attempts++;
+        console.log(
+          `⏳ Waiting for service discovery server... (${attempts}/${maxAttempts})`
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        delay *= 2; // Double the delay for next attempt
+      }
     }
+
+    console.error("❌ Service discovery server failed to start");
+    return false;
   }
 
   // Spawn 3 instances of a service
@@ -46,20 +72,30 @@ class SimpleSpawner {
   async start() {
     console.log("🎯 Starting all microservices...\n");
 
-    // Check if service discovery server is running
-    await this.waitForServiceDiscovery();
+    // Start service discovery server first
+    this.spawnServiceDiscoveryServer();
+
+    // Wait for service discovery server to be ready
+    const isReady = await this.waitForServiceDiscovery();
+    if (!isReady) {
+      this.shutdown();
+      return;
+    }
 
     // Spawn User Service instances (ports 4000-4002)
     this.spawnService("user-service", "./user.service.app.js", 4000);
 
     // Wait a bit between services
     await new Promise((resolve) => setTimeout(resolve, 2000));
+
     // Spawn Order Service instances (ports 5000-5002)
     this.spawnService("order-service", "./order.service.app.js", 5000);
 
     console.log("\n🎉 All services started successfully!");
     console.log("\n📊 Service URLs:");
-    console.log("User Service instances:");
+    console.log("Service Discovery Dashboard:");
+    console.log("  - http://localhost:3000");
+    console.log("\nUser Service instances:");
     console.log("  - http://localhost:4000");
     console.log("  - http://localhost:4001");
     console.log("  - http://localhost:4002");
