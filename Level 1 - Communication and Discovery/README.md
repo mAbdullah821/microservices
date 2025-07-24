@@ -1,14 +1,18 @@
-# Microservices Service Discovery System
+# Microservices Architecture with Service Discovery & Circuit Breaker
 
-A complete service discovery implementation with client, server, and spawner components for managing microservices communication and discovery.
+A comprehensive microservices system demonstrating advanced patterns including service discovery, circuit breaker implementation, load balancing, and real-time monitoring dashboards.
 
 ## 🚀 Features <span id="features"></span>
 
-- **Service Discovery Server** with registration, heartbeat, and discovery endpoints
-- **Service Discovery Client** with intelligent caching and load balancing
-- **Service Spawner** to manage multiple service instances (and the discovery server)
-- **Example Services** (User & Order) with health checks
-- **Web Dashboard** for monitoring registered services
+- **🔍 Service Discovery System** - Automatic service registration, discovery, and health monitoring
+- **⚡ Circuit Breaker Pattern** - Failure protection with intelligent fallback mechanisms
+- **⚖️ Load Balancing** - Random selection across multiple service instances
+- **🎯 API Gateway** - Centralized routing with circuit breaker protection
+- **📊 Real-time Dashboards** - Interactive monitoring for both API Gateway and Service Discovery
+- **🔄 Auto-refresh Monitoring** - Configurable health checks with adjustable refresh rates
+- **🧪 Comprehensive Testing** - Built-in scenarios for learning microservices patterns
+- **🛡️ Graceful Degradation** - Fallback responses when services are unavailable
+- **📈 Performance Optimization** - Intelligent caching and connection pooling
 
 ## 📋 Table of Contents <span id="table-of-contents"></span>
 
@@ -19,50 +23,66 @@ A complete service discovery implementation with client, server, and spawner com
 - [📦 Installation](#installation)
 - [🚀 Usage](#usage)
 - [📚 API Reference](#api-reference)
-- [🖥️ Dashboard](#dashboard)
-- [💡 Examples](#examples)
+- [🖥️ Dashboards](#dashboards)
+  - [API Gateway Dashboard](#api-gateway-dashboard)
+  - [Service Discovery Dashboard](#service-discovery-dashboard)
+- [💡 Learning Scenarios](#learning-scenarios)
 - [🔧 Configuration](#configuration)
 - [🐛 Troubleshooting](#troubleshooting)
 
 ## 🏗️ Architecture Overview <span id="architecture-overview"></span>
 
 ```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   User Service  │    │  Order Service   │    │ Service Spawner │
-│   (Port 4000+)  │    │   (Port 5000+)   │    │                 │
-└─────────┬───────┘    └──────────┬───────┘    └─────────┬───────┘
-          │                       │                      │
-          └───────────────────────┼──────────────────────┘
-                                  │
-                    ┌─────────────▼─────────────┐
-                    │  Service Discovery Client │
-                    │     (Caching & LB)        │
-                    └─────────────┬─────────────┘
-                                  │
-                    ┌─────────────▼─────────────┐
-                    │  Service Discovery Server │
-                    │      (Port 3000)          │
-                    └─────────────┬─────────────┘
-                                  │
-                    ┌─────────────▼─────────────┐
-                    │   Web Dashboard           │
-                    │   (Monitoring UI)         │
-                    └───────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           MICROSERVICES ORCHESTRATOR                        │
+│                              (Process Manager)                              │
+└─────────────────────┬───────────────────────────────────────────────────────┘
+                      │
+┌─────────────────────▼─────────────────────┐    ┌─────────────────────────────┐
+│         SERVICE DISCOVERY SERVER          │    │      USER SERVICE           │
+│              (Port 3000)                  │    │    (Ports 4000-4002)        │
+│  • Service Registration                   │    │  • User Management          │
+│  • Health Monitoring                      │    │  • Health Checks            │
+│  • Web Dashboard                          │    │  • Service Discovery Client │
+│  • Automatic Cleanup                      │    │  • Heartbeat Management     │
+└─────────────────────┬─────────────────────┘    └─────────────┬───────────────┘
+                      │                                        │
+                      │                                        │
+┌─────────────────────▼─────────────────────┐    ┌─────────────▼───────────────┐
+│              API GATEWAY                  │    │      ORDER SERVICE          │
+│              (Port 8000)                  │    │    (Ports 5000-5002)        │
+│  • Circuit Breaker Protection             │    │  • Order Management         │
+│  • Service Discovery Integration          │    │  • Health Checks            │
+│  • Load Balancing                         │    │  • Service Discovery Client │
+│  • Intelligent Caching                    │    │  • Heartbeat Management     │
+│  • Enhanced Web Dashboard                 │    │                             │
+│  • Auto-refresh Monitoring                │    │                             │
+└─────────────────────┬─────────────────────┘    └─────────────────────────────┘
+                      │
+                      │
+┌─────────────────────▼─────────────────────┐
+│              WEB DASHBOARDS               │
+│  • API Gateway Dashboard (Port 8000)      │
+│  • Service Discovery Dashboard (Port 3000)│
+│  • Real-time Health Monitoring            │
+│  • Interactive Testing Interface          │
+│  • Configurable Auto-refresh              │
+└───────────────────────────────────────────┘
 ```
 
 ## 🧩 Components <span id="components"></span>
 
-### 1. Service Discovery Server (`service-discovery-server/`)
+### 1. **Service Discovery Server** (`src/packages/service-discovery/server/`)
 
 The central registry that manages service registration, health monitoring, and discovery.
 
 **Key Features:**
 
-- Service registration with automatic IP detection
-- Heartbeat monitoring with configurable intervals
-- Automatic cleanup of dead services
-- RESTful API for service discovery
-- Web dashboard for monitoring
+- **Automatic Service Registration** - Services register themselves with IP detection
+- **Heartbeat Monitoring** - Configurable intervals with automatic cleanup
+- **RESTful API** - Complete service discovery endpoints
+- **Web Dashboard** - Real-time monitoring interface
+- **Graceful Cleanup** - Automatic removal of dead services
 
 **Endpoints:**
 
@@ -73,48 +93,95 @@ The central registry that manages service registration, health monitoring, and d
 - `DELETE /services/:name/:port` - Remove a service
 - `GET /` - Web dashboard
 
-### 2. Service Discovery Client (`service-discovery-client/`)
+### 2. **Service Discovery Client** (`src/packages/service-discovery/client/`)
 
-A client library that services use to register themselves and discover other services.
+A TypeScript client library that services use to register themselves and discover other services.
 
 **Key Features:**
 
-- Automatic service registration
-- Periodic heartbeat sending
-- Intelligent caching with TTL
-- Load balancing with random selection
-- Graceful fallback to stale cache
-- Health check capabilities
+- **Automatic Registration** - Self-registration with discovery server
+- **Periodic Heartbeats** - Configurable heartbeat intervals
+- **Intelligent Caching** - TTL-based caching with stale-while-revalidate
+- **Load Balancing** - Random selection from available instances
+- **Graceful Fallback** - Fallback to stale cache when discovery fails
+- **Health Check Integration** - Built-in health monitoring capabilities
 
-### 3. Service Spawner (`service.spawner.app.js`)
+### 3. **Circuit Breaker** (`src/packages/circuit-breaker/`)
 
-Manages the lifecycle of the entire system:
+Advanced failure protection system that prevents cascade failures.
 
-- **Automatically starts the Service Discovery Server**
-- Waits for the discovery server to be ready before spawning services
-- Spawns multiple instances of each service
-- Automatic port assignment
-- Health checks before starting services
-- Graceful shutdown handling
-- Process management
+**Key Features:**
 
-### 4. Example Services
+- **Three-State Pattern** - Closed, Open, and Half-Open states
+- **Configurable Thresholds** - Failure count, time windows, and reset timeouts
+- **Intelligent Fallbacks** - Automatic fallback method execution
+- **Method-Level Protection** - Protect individual methods with custom configurations
+- **Real-time Monitoring** - State tracking and metrics
 
-#### User Service (`user.service.app.js`)
+**Configuration Options:**
 
-- Manages user data
-- Demonstrates service-to-service communication
-- Health check endpoint
-- CORS enabled
+- `maximumFailuresAllowed` - Number of failures before opening circuit
+- `timeWindowInMilliseconds` - Rolling window for failure counting
+- `resetTimeoutInMilliseconds` - Time to wait before testing recovery
 
-#### Order Service (`order.service.app.js`)
+### 4. **API Gateway** (`src/api-gateway.app.ts`)
 
-- Manages order data
-- Provides order lookup by user
-- Health check endpoint
-- CORS enabled
+A comprehensive API Gateway that provides centralized routing with advanced protection.
+
+**Key Features:**
+
+- **Service Discovery Integration** - Automatic service URL resolution
+- **Circuit Breaker Protection** - Failure protection with fallback responses
+- **Load Balancing** - Random selection from available service instances
+- **Intelligent Caching** - Performance optimization for service lookups
+- **Enhanced Dashboard** - Interactive interface with 4 dedicated sections
+- **Auto-refresh Monitoring** - Configurable health checks (1-10 seconds)
+- **Graceful Shutdown** - Clean unregistration on exit
+
+**Architecture Benefits:**
+
+- **Resilience** - Circuit breaker prevents cascade failures
+- **Scalability** - Load balancing across multiple service instances
+- **Observability** - Comprehensive health checks and monitoring
+- **Developer Experience** - Interactive dashboard for testing and learning
+
+### 5. **Microservices Orchestrator** (`src/microservices-orchestrator.ts`)
+
+Manages the complete lifecycle of all microservices in the system.
+
+**Key Features:**
+
+- **Automatic Startup Coordination** - Starts services in the correct order
+- **Health Monitoring** - Waits for services to be ready before proceeding
+- **Process Management** - Handles multiple service instances
+- **Graceful Shutdown** - Clean termination of all processes
+- **Port Management** - Automatic port assignment and conflict resolution
+
+### 6. **Example Services**
+
+#### **User Service** (`src/apps/user/`)
+
+- **User Management** - CRUD operations for user data
+- **Health Checks** - Standardized health monitoring
+- **Service Discovery Integration** - Automatic registration and heartbeats
+- **CORS Support** - Cross-origin request handling
+
+#### **Order Service** (`src/apps/order/`)
+
+- **Order Management** - Order creation and retrieval
+- **User Association** - Orders linked to specific users
+- **Health Checks** - Standardized health monitoring
+- **Service Discovery Integration** - Automatic registration and heartbeats
 
 ## 📦 Installation <span id="installation"></span>
+
+### Prerequisites
+
+- **Node.js** (v16 or higher)
+- **npm** or **yarn**
+- **Git**
+
+### Setup Instructions
 
 1. **Clone the repository:**
 
@@ -123,57 +190,212 @@ git clone <repository-url>
 cd "Level 1 - Communication and Discovery"
 ```
 
-2. **Install dependencies (single step):**
+2. **Install dependencies:**
 
 ```bash
 npm install
+```
+
+3. **Verify installation:**
+
+```bash
+npm run dev --help
 ```
 
 ## 🚀 Usage <span id="usage"></span>
 
 ### Quick Start (Recommended)
 
-1. **Start the entire system (discovery server, user & order services):**
+1. **Start the entire system:**
 
 ```bash
-npm start
+npm run dev
 ```
 
-This will automatically:
+This single command will automatically:
 
-- Start the Service Discovery Server (on port 3000)
-- Wait for the server to be ready
+- Start the Service Discovery Server (port 3000)
+- Wait for discovery server to be ready
 - Spawn 3 User Service instances (ports 4000-4002)
 - Spawn 3 Order Service instances (ports 5000-5002)
+- Start the API Gateway (port 8000) with circuit breaker protection
 
-2. **Access the Dashboard:**
-   Open `http://localhost:3000` in your browser to view the service discovery dashboard.
+2. **Access the Dashboards:**
 
-3. **Try Example Endpoints:**
+   - **API Gateway Dashboard**: `http://localhost:8000/`
+   - **Service Discovery Dashboard**: `http://localhost:3000/`
 
-- User Service: `http://localhost:4000/users`, `http://localhost:4000/health`
-- Order Service: `http://localhost:5000/orders/user/1`, `http://localhost:5000/health`
+3. **Test the System:**
+   - Use the interactive dashboard at `http://localhost:8000/`
+   - Try the learning scenarios described below
+   - Monitor real-time health status
 
-### Manual Service Management
+### Individual Service Management
 
-You can also start services individually (not recommended, as the spawner manages everything):
+You can also start services individually for development:
 
 ```bash
-# Start User Service on specific port
-PORT=4000 node user.service.app.js
+# Start Service Discovery Server only
+npm run service-discovery
 
-# Start Order Service on specific port
-PORT=5000 node order.service.app.js
+# Start User Service only
+npm run user-service
 
-# Start Service Discovery Server manually (not needed if using npm start)
-node service-discovery-server/index.js
+# Start Order Service only
+npm run order-service
+
+# Start API Gateway only
+npm run api-gateway
 ```
+
+### Port Configuration
+
+The system uses the following port assignments:
+
+- **Service Discovery Server**: 3000
+- **API Gateway**: 8000
+- **User Services**: 4000-4002
+- **Order Services**: 5000-5002
 
 ## 📚 API Reference <span id="api-reference"></span>
 
+### API Gateway Endpoints
+
+#### **Dashboard Interface**
+
+```http
+GET /
+```
+
+Returns the interactive API Gateway dashboard with 4 sections and real-time monitoring.
+
+#### **Health Check**
+
+```http
+GET /health
+```
+
+Returns comprehensive health status including service discovery connection and cache information.
+
+**Response:**
+
+```json
+{
+  "service": "api-gateway",
+  "instance": "api-gateway-8000",
+  "status": "healthy",
+  "port": 8000,
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "serviceDiscovery": {
+    "status": "connected",
+    "server": "http://localhost:3000"
+  },
+  "cache": {
+    "user-service": {
+      "cached": true,
+      "ttl": 45,
+      "services": 3
+    }
+  }
+}
+```
+
+#### **Get All Users**
+
+```http
+GET /users
+```
+
+Retrieves all users with circuit breaker protection and service discovery.
+
+**Response:**
+
+```json
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john@example.com",
+      "age": 30
+    }
+  ],
+  "meta": {
+    "source": "service-discovery + circuit-breaker",
+    "instance": "api-gateway-8000",
+    "timestamp": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
+#### **Get User Orders**
+
+```http
+GET /orders/user/:userId
+```
+
+Retrieves orders for a specific user with circuit breaker protection.
+
+**Response:**
+
+```json
+{
+  "orders": [
+    {
+      "id": 1,
+      "userId": 1,
+      "products": ["Product A", "Product B"]
+    }
+  ],
+  "meta": {
+    "userId": 1,
+    "source": "service-discovery + circuit-breaker",
+    "instance": "api-gateway-8000",
+    "timestamp": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
+#### **Get Users with Orders**
+
+```http
+GET /users-with-orders
+```
+
+Combined endpoint that retrieves all users with their associated orders.
+
+**Response:**
+
+```json
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john@example.com",
+      "age": 30,
+      "orders": [
+        {
+          "id": 1,
+          "userId": 1,
+          "products": ["Product A"]
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "totalUsers": 1,
+    "totalOrders": 1,
+    "source": "service-discovery + circuit-breaker",
+    "instance": "api-gateway-8000",
+    "timestamp": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
 ### Service Discovery Server API
 
-#### Register Service
+#### **Register Service**
 
 ```http
 POST /register
@@ -186,7 +408,7 @@ Content-Type: application/json
 }
 ```
 
-#### Send Heartbeat
+#### **Send Heartbeat**
 
 ```http
 POST /heartbeat
@@ -199,129 +421,306 @@ Content-Type: application/json
 }
 ```
 
-#### Discover Services
+#### **Discover Services**
 
 ```http
 GET /services/user-service
 ```
 
-#### Get All Services
+#### **Get All Services**
 
 ```http
 GET /services
 ```
 
-### Service Discovery Client API
+## 🖥️ Dashboards <span id="dashboards"></span>
 
-```javascript
-const ServiceDiscoveryClient = require("./service-discovery-client");
+### API Gateway Dashboard
 
-// Initialize client
-const client = new ServiceDiscoveryClient("http://localhost:3000");
+**Access**: `http://localhost:8000/`
 
-// Register service
-await client.register("user-service", 4000);
+The API Gateway provides a comprehensive web interface with 4 dedicated sections for monitoring and testing the microservices system.
 
-// Discover service URL
-const serviceUrl = await client.getServiceUrl("order-service");
+#### 🎯 Dashboard Features
 
-// Get cache status
-const cacheStatus = client.getCacheStatus();
+1. **Four Dedicated Sections**
 
-// Health check
-const health = await client.healthCheck();
-```
+   - **👥 All Users** - Test and view all users from user service
+   - **📦 User Orders** - Test orders for specific user ID (customizable input)
+   - **🔗 Users with Orders** - Combined data showing users with their orders
+   - **🏥 Health & Cache** - System health, service discovery status, and cache information
 
-## 🖥️ Dashboard <span id="dashboard"></span>
+2. **Interactive Controls**
 
-The web dashboard provides real-time monitoring of all registered services:
+   - **🔄 Refresh All** - Manual refresh for all sections
+   - **⏱️ Auto-refresh Toggle** - Smart auto-refresh that starts after 5 seconds
+   - **🎚️ Refresh Rate Slider** - Adjustable interval from 1-10 seconds
+   - **🔗 Service Discovery Link** - Direct access to Service Discovery Dashboard
+   - **🧪 Individual Testing** - Test each endpoint independently
 
-- **Service Overview**: List of all registered services
-- **Instance Details**: Individual service instances with status
-- **Health Monitoring**: Real-time heartbeat status
-- **Service Management**: Manual registration and removal
-- **Statistics**: Service counts and uptime information
+3. **Real-time Monitoring**
 
-Access the dashboard at: `http://localhost:3000`
+   - **Live Health Status** - Color-coded indicators with pulse animations
+   - **Service Discovery Connection** - Real-time connection monitoring
+   - **Circuit Breaker Status** - State tracking and metrics
+   - **Cache Information** - TTL, hit rates, and service counts
+   - **Instance Tracking** - Service instance identification
 
-## 💡 Examples <span id="examples"></span>
+4. **Modern UI Features**
+   - **Responsive Design** - Works on desktop, tablet, and mobile
+   - **Modern Animations** - Smooth hover effects and transitions
+   - **Clear Status Indicators** - Visual feedback for all operations
+   - **Error Handling** - Graceful error display with retry options
+   - **Loading States** - Visual feedback during API calls
 
-### Service-to-Service Communication
+#### 🚀 Dashboard Endpoints
 
-The User Service demonstrates how to communicate with the Order Service:
+- **`GET /`** - **Main Interactive Dashboard**
+- **`GET /health`** - API Gateway health with service discovery status
+- **`GET /users`** - Get all users (with circuit breaker protection)
+- **`GET /orders/user/:userId`** - Get orders for specific user ID
+- **`GET /users-with-orders`** - Combined endpoint with all user data
 
-```javascript
-// Get order service URL using service discovery
-const orderServiceUrl = await client.getServiceUrl("order-service");
+#### 🔧 Dashboard Configuration
 
-// Make request to order service
-const response = await axios.get(`${orderServiceUrl}/orders/user/${userId}`);
-```
+The dashboard automatically connects to:
 
-### Health Checks
+- **Service Discovery Server**: `http://localhost:3000`
+- **API Gateway**: `http://localhost:8000`
+- **User Services**: `http://localhost:4000-4002`
+- **Order Services**: `http://localhost:5000-5002`
 
-All services include health check endpoints:
+### Service Discovery Dashboard
 
-```bash
-# User Service health check
-curl http://localhost:4000/health
+**Access**: `http://localhost:3000/`
 
-# Order Service health check
-curl http://localhost:5000/health
-```
+The Service Discovery Dashboard provides real-time monitoring of all registered services:
 
-### Load Balancing
+- **Service Overview** - List of all registered services
+- **Instance Details** - Individual service instances with status
+- **Health Monitoring** - Real-time heartbeat status
+- **Service Management** - Manual registration and removal
+- **Statistics** - Service counts and uptime information
 
-The service discovery client automatically load balances requests:
+## 💡 Learning Scenarios <span id="learning-scenarios"></span>
 
-```javascript
-// Each call may return a different service instance
-const serviceUrl1 = await client.getServiceUrl("user-service");
-const serviceUrl2 = await client.getServiceUrl("user-service");
-// serviceUrl1 and serviceUrl2 may be different instances
-```
+The enhanced dashboard supports comprehensive learning scenarios for understanding microservices patterns:
+
+### 1. **Normal Operation Testing**
+
+- **Scenario**: All services are healthy and responding
+- **Actions**: Use the dashboard to test all endpoints
+- **Learning**: Understand how service discovery and load balancing work
+- **Expected**: All requests succeed with data from different service instances
+
+### 2. **Individual Endpoint Testing**
+
+- **Scenario**: Test specific functionality in isolation
+- **Actions**: Use individual "Test Endpoint" buttons for each section
+- **Learning**: Understand how each service operates independently
+- **Expected**: Targeted testing of specific functionality
+
+### 3. **User ID Customization**
+
+- **Scenario**: Test different user scenarios
+- **Actions**: Change user ID in the orders section (try IDs 1, 2, 3)
+- **Learning**: Understand how parameterized requests work
+- **Expected**: Different order results based on user ID
+
+### 4. **Circuit Breaker Activation**
+
+- **Scenario**: Simulate service failures
+- **Actions**: Stop user-service instances (Ctrl+C in their terminals)
+- **Learning**: Observe circuit breaker pattern in action
+- **Expected**: Fallback responses after 3 failures, then circuit opens
+
+### 5. **Partial Failure Handling**
+
+- **Scenario**: One service fails while others remain healthy
+- **Actions**: Stop order-service instances
+- **Learning**: Understand graceful degradation
+- **Expected**: User data works, order data shows fallbacks
+
+### 6. **Recovery Testing**
+
+- **Scenario**: Services recover from failure
+- **Actions**: Restart stopped services
+- **Learning**: Observe circuit breaker recovery (half-open state)
+- **Expected**: Gradual return to normal operation
+
+### 7. **Auto-refresh Demonstration**
+
+- **Scenario**: Real-time monitoring
+- **Actions**: Watch the health section update automatically
+- **Learning**: Understand real-time system monitoring
+- **Expected**: Health status updates every 5 seconds (configurable)
+
+### 8. **Refresh Rate Adjustment**
+
+- **Scenario**: Customize monitoring frequency
+- **Actions**: Use the slider to change refresh rate (1-10 seconds)
+- **Learning**: Understand monitoring configuration
+- **Expected**: Health checks update at the selected interval
+
+### 9. **Service Discovery Integration**
+
+- **Scenario**: Cross-dashboard navigation
+- **Actions**: Click "Service Discovery Dashboard" button
+- **Learning**: Understand how different monitoring tools work together
+- **Expected**: Opens Service Discovery Dashboard in new tab
+
+### 10. **Load Balancing Verification**
+
+- **Scenario**: Multiple service instances
+- **Actions**: Make multiple requests to the same endpoint
+- **Learning**: Observe load balancing in action
+- **Expected**: Requests distributed across different service instances
 
 ## 🔧 Configuration <span id="configuration"></span>
 
-### Service Discovery Server
+### Circuit Breaker Configuration
+
+The circuit breaker can be configured with these parameters:
+
+```typescript
+const circuitBreakerConfig = {
+  maximumFailuresAllowed: 3, // Open circuit after 3 failures
+  timeWindowInMilliseconds: 30000, // Within 30-second window
+  resetTimeoutInMilliseconds: 30000, // Wait 30 seconds before testing recovery
+};
+```
+
+### Service Discovery Configuration
+
+#### Client Options
+
+```typescript
+const clientOptions = {
+  defaultHeartbeatInterval: 30, // 30 seconds
+  cacheMultiplier: 2, // Cache for 60 seconds
+  requestTimeout: 5000, // 5 second timeout
+};
+```
+
+#### Server Configuration
 
 - **Port**: 3000 (default)
 - **Heartbeat Grace Period**: 50% of heartbeat interval
 - **Cleanup Interval**: 60 seconds
 
-### Service Discovery Client
+### API Gateway Configuration
 
-- **Default Heartbeat Interval**: 30 seconds
-- **Cache Multiplier**: 2x heartbeat interval
-- **Request Timeout**: 5 seconds
+- **Port**: 8000 (default)
+- **Service Discovery URL**: `http://localhost:3000`
+- **Circuit Breaker**: Applied to all external service calls
+- **CORS**: Enabled for cross-origin requests
+- **Auto-refresh**: 5 seconds default, configurable 1-10 seconds
 
-### Service Spawner
+### Microservices Orchestrator Configuration
 
-- **Automatically starts the Service Discovery Server**
-- **User Service Ports**: 4000-4002
-- **Order Service Ports**: 5000-5002
+- **Service Discovery Server**: Port 3000
+- **User Service Instances**: Ports 4000-4002
+- **Order Service Instances**: Ports 5000-5002
+- **API Gateway**: Port 8000
 - **Startup Delay**: 2 seconds between services
 
 ## 🐛 Troubleshooting <span id="troubleshooting"></span>
 
 ### Common Issues
 
-1. **Service Discovery Server Not Responding**
+#### 1. **Port Already in Use**
 
-   - Ensure the server is running on port 3000
-   - Check for port conflicts
+```bash
+# Check what's using the port
+netstat -ano | findstr :3000
 
-2. **Services Not Registering**
+# Kill the process
+taskkill //F //PID <process_id>
+```
 
-   - Verify network connectivity
-   - Check firewall settings
-   - Ensure correct discovery server URL
+#### 2. **Service Discovery Server Not Responding**
 
-3. **Heartbeat Failures**
-   - Check network stability
-   - Verify service discovery server is accessible
-   - Review heartbeat interval settings
+- Ensure the server is running on port 3000
+- Check for port conflicts
+- Verify network connectivity
+
+#### 3. **Services Not Registering**
+
+- Verify network connectivity
+- Check firewall settings
+- Ensure correct discovery server URL
+- Check service logs for registration errors
+
+#### 4. **Circuit Breaker Not Working**
+
+- Verify circuit breaker configuration
+- Check fallback methods are properly defined
+- Monitor circuit breaker state in dashboard
+- Ensure service failures are actually occurring
+
+#### 5. **Dashboard Not Loading**
+
+- Check if API Gateway is running on port 8000
+- Verify Service Discovery Server is accessible
+- Check browser console for JavaScript errors
+- Ensure CORS is properly configured
+
+#### 6. **Auto-refresh Not Working**
+
+- Check if auto-refresh is enabled in dashboard
+- Verify refresh rate is set correctly
+- Check browser console for errors
+- Ensure health endpoint is responding
+
+### Debug Commands
+
+#### Check Service Status
+
+```bash
+# Check all Node.js processes
+tasklist | findstr node
+
+# Check specific ports
+netstat -ano | findstr ":3000\|:400[0-9]\|:500[0-9]\|:8000"
+```
+
+#### Kill All Services
+
+```bash
+# Kill all Node.js processes
+taskkill //F //IM node.exe
+```
+
+#### Restart System
+
+```bash
+# Kill all processes and restart
+taskkill //F //IM node.exe
+npm run dev
+```
+
+### Log Analysis
+
+#### Service Discovery Issues
+
+- Check Service Discovery Server logs for registration errors
+- Verify heartbeat intervals are appropriate
+- Monitor service cleanup logs
+
+#### Circuit Breaker Issues
+
+- Monitor circuit breaker state transitions
+- Check failure count and timing
+- Verify fallback method execution
+
+#### API Gateway Issues
+
+- Check service discovery client logs
+- Monitor circuit breaker activation
+- Verify endpoint responses
 
 ---
 
 **Built with ❤️ for microservices architecture learning and development.**
+
+_This project demonstrates advanced microservices patterns including service discovery, circuit breaker implementation, load balancing, and comprehensive monitoring systems._
