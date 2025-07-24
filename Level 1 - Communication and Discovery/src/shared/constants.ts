@@ -1,4 +1,4 @@
-export const DASHBOARD_HTML = `<!DOCTYPE html>
+export const API_GATEWAY_DASHBOARD_HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">

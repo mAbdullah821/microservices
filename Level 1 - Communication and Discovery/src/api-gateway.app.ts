@@ -4,7 +4,7 @@ import cors from 'cors';
 import ServiceDiscoveryClient from './packages/service-discovery/client';
 import { createCircuitBreakerMethod } from './packages/circuit-breaker';
 import { User, Order, UserWithOrders } from './shared/types';
-import { DASHBOARD_HTML } from './constants';
+import { API_GATEWAY_DASHBOARD_HTML } from './shared/constants';
 
 const app = express();
 const port = parseInt(process.env.PORT || '8000');
@@ -123,7 +123,7 @@ const protectedFetchOrders = createCircuitBreakerMethod(
 
 // Web Interface
 app.get('/', (req: Request, res: Response) => {
-  res.send(DASHBOARD_HTML);
+  res.send(API_GATEWAY_DASHBOARD_HTML);
 });
 
 /**
