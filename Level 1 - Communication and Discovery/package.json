@@ -2,10 +2,13 @@
   "name": "level---01",
   "version": "1.0.0",
   "description": "",
-  "main": "order.service.app.js",
+  "main": "microservices-orchestrator.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node service.spawner.app.js"
+    "dev": "ts-node src/microservices-orchestrator.ts",
+    "api-gateway": "ts-node src/api-gateway.app.ts",
+    "service-discovery": "ts-node src/packages/service-discovery/server/index.ts",
+    "user-service": "ts-node src/apps/user/index.ts",
+    "order-service": "ts-node src/apps/order/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +17,15 @@
   "dependencies": {
     "axios": "^1.10.0",
     "cors": "^2.8.5",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "http-proxy-middleware": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.23",
+    "@types/node": "^20.19.9",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }
